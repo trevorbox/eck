@@ -4,7 +4,7 @@
 See the [Deploy operator guide](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-openshift-deploy-the-operator.html)
 
 ```sh
-oc apply -f https://download.elastic.co/downloads/eck/1.1.0/all-in-one.yaml
+oc apply -f all-in-one.yaml
 
 oc new-project elastic
 
