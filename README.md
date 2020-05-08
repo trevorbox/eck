@@ -4,34 +4,38 @@
 See the [Deploy operator guide](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-openshift-deploy-the-operator.html)
 
 ```sh
-oc apply -f all-in-one.yaml
+export OPERATOR_NAMESPACE=elastic-system
 
-oc new-project elastic
-
-#Required for Operator to watch our "elastic" namespace
-oc patch statefulset/elastic-operator \
-  -n elastic-system \
-  --type='json' \
-  --patch '[{"op":"add","path":"/spec/template/spec/containers/0/env/-","value": {"name": "NAMESPACE", "value": "elastic"}}]'
+helm template elastic-operator --namespace ${OPERATOR_NAMESPACE} | oc apply -f -
 ```
 
 ## Deploy Elasticsearch - auth disabled
 ```sh
-oc create -f elasticsearch-elasticsearch-sample.yaml
+export DEPLOY_NAMESPACE=elastic
+
+oc new-project ${DEPLOY_NAMESPACE}
+
+#Required for Operator to watch our ${DEPLOY_NAMESPACE}
+oc patch statefulset/elastic-operator \
+  -n elastic-system \
+  --type='json' \
+  --patch '[{"op":"add","path":"/spec/template/spec/containers/0/env/-","value": {"name": "NAMESPACE", "value": "${DEPLOY_NAMESPACE}"}}]'
+
+helm template elasticsearch --namespace ${DEPLOY_NAMESPACE} | oc apply -f -
 ```
 
 ## Deploy Kibana with Openshift oauth proxy
 ```sh
-oc create -f serviceaccount-kibana.yaml
+export DEPLOY_NAMESPACE=elastic
 
-oc create -f clusterrole-oauth-proxy.yaml
-
-oc create -f clusterrolebinding-oauth-proxy.yaml
-
-oc create -f kibana-kibana-sample.yaml
-
-oc create -f route-kibana-sample.yaml
+helm template kibana --namespace ${DEPLOY_NAMESPACE} | oc apply -f -
 ```
 
-## TODOS
-- Determine how to add Heartbeat
+## Deploy Heartbeat
+```sh
+export DEPLOY_NAMESPACE=elastic
+
+oc adm policy add-scc-to-user privileged -z heartbeat -n ${DEPLOY_NAMESPACE}
+
+helm template heartbeat --namespace ${DEPLOY_NAMESPACE} | oc apply -f -
+```
