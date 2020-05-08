@@ -2,6 +2,7 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: kibana-sample
+  namespace: {{ .Release.Namespace }}
 spec:
   tls:
     insecureEdgeTerminationPolicy: Redirect
