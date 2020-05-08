@@ -3,6 +3,7 @@ kind: Kibana
 metadata:
   name: kibana-sample
 spec:
+  serviceAccountName: kibana
   config:
     xpack.security.enabled: false
   count: 1
@@ -12,7 +13,20 @@ spec:
     service:
       metadata:
         creationTimestamp: null
-      spec: {}
+        annotations:
+          service.alpha.openshift.io/serving-cert-secret-name: kibana-tls
+      spec:
+        ports:
+          - name: proxy
+            protocol: TCP
+            port: 9091
+            targetPort: 9091
+        selector:
+          common.k8s.elastic.co/type: kibana
+          kibana.k8s.elastic.co/name: kibana-sample
+        clusterIP: None
+        type: ClusterIP
+        sessionAffinity: None
     tls:
       selfSignedCertificate:
         disabled: true
@@ -20,13 +34,53 @@ spec:
     metadata:
       creationTimestamp: null
     spec:
+      automountServiceAccountToken: true
+      serviceAccountName: kibana
+      volumes:
+        - name: kibana-tls
+          secret:
+            secretName: kibana-tls
+            defaultMode: 42
+        - name: kibana-proxy
+          secret:
+            secretName: kibana-proxy
+            defaultMode: 42
       containers:
       - name: kibana
         resources:
           requests:
             cpu: "1"
-            memory: 1Gi
-          limits:
-            cpu: "1"
-            memory: 1Gi
+            memory: 2Gi
+      - name: proxy
+        args:
+        - '-provider=openshift'
+        - '-pass-basic-auth=false'
+        - '-https-address=:9091'
+        - '-http-address='
+        - '-email-domain=*'
+        - '-upstream=http://localhost:5601'
+        - '-openshift-sar={"resource": "namespaces", "verb": "get"}'
+        - '-openshift-delegate-urls={"/": {"resource": "namespaces", "verb": "get"}}'
+        - '-tls-cert=/etc/tls/private/tls.crt'
+        - '-tls-key=/etc/tls/private/tls.key'
+        - '-client-secret-file=/var/run/secrets/kubernetes.io/serviceaccount/token'
+        - '-cookie-secret-file=/etc/proxy/secrets/session_secret'
+        - '-openshift-service-account=kibana'
+        - '-openshift-ca=/etc/pki/tls/cert.pem'
+        - '-openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'
+        - '-skip-auth-regex=^/metrics'
+        image: 'quay.io/openshift/origin-oauth-proxy:4.6'
+        ports:
+          - containerPort: 9091
+            name: proxy
+        resources:
+          requests:
+            cpu: 10m
+            memory: 20Mi
+        terminationMessagePolicy: FallbackToLogsOnError
+        volumeMounts:
+          - mountPath: /etc/tls/private
+            name: kibana-tls
+          - mountPath: /etc/proxy/secrets
+            name: kibana-proxy
   version: 7.6.2

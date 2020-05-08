@@ -5,9 +5,11 @@ metadata:
 spec:
   tls:
     insecureEdgeTerminationPolicy: Redirect
-    termination: edge
+    termination: reencrypt
   to:
     kind: Service
     name: kibana-sample-kb-http
     weight: 100
+  port:
+    targetPort: proxy
   wildcardPolicy: None

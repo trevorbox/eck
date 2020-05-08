@@ -20,13 +20,18 @@ oc patch statefulset/elastic-operator \
 oc create -f elasticsearch-elasticsearch-sample.yaml
 ```
 
-## Deploy Kibana - auth disabled
+## Deploy Kibana with Openshift oauth proxy
 ```sh
+oc create -f serviceaccount-kibana.yaml
+
+oc create -f clusterrole-oauth-proxy.yaml
+
+oc create -f clusterrolebinding-oauth-proxy.yaml
+
 oc create -f kibana-kibana-sample.yaml
 
 oc create -f route-kibana-sample.yaml
 ```
 
 ## TODOS
-- Investigate Openshift oauth sidecar and require for Kibana
 - Determine how to add Heartbeat
