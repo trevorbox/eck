@@ -46,6 +46,10 @@ spec:
           secret:
             secretName: kibana-proxy
             defaultMode: 42
+        - name: configmap-trusted-ca-bundle
+          configMap:
+            name: trusted-ca-bundle
+            defaultMode: 420
       containers:
       - name: kibana
         resources:
@@ -67,7 +71,7 @@ spec:
         - '-client-secret-file=/var/run/secrets/kubernetes.io/serviceaccount/token'
         - '-cookie-secret-file=/etc/proxy/secrets/session_secret'
         - '-openshift-service-account=kibana'
-        - '-openshift-ca=/etc/pki/tls/cert.pem'
+        - '-openshift-ca=/etc/configmaps/trusted-ca-bundle/ca-bundle.crt'
         - '-openshift-ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'
         - '-skip-auth-regex=^/metrics'
         image: 'quay.io/openshift/origin-oauth-proxy:4.6'
@@ -84,4 +88,7 @@ spec:
             name: kibana-tls
           - mountPath: /etc/proxy/secrets
             name: kibana-proxy
+          - name: configmap-trusted-ca-bundle
+            mountPath: /etc/configmaps/trusted-ca-bundle
+            readOnly: true
   version: 7.6.2
