@@ -1,0 +1,10 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: heartbeat-build
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: heartbeat-build
+spec:
+  lookupPolicy:
+    local: false
