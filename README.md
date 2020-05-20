@@ -36,10 +36,16 @@ helm template elasticsearch --namespace ${DEPLOY_NAMESPACE} | oc apply -f -
 helm template kibana --namespace ${DEPLOY_NAMESPACE} | oc apply -f -
 ```
 
+## Deploy Heartbeat Build
+
+This will build a new heartbeat image that can be run as a random user and push it to the internal openshift registry.
+
+```sh
+helm template heartbeat-build --namespace ${DEPLOY_NAMESPACE} | oc apply -f -
+```
+
 ## Deploy Heartbeat
 
 ```sh
-oc adm policy add-scc-to-user privileged -z heartbeat -n ${DEPLOY_NAMESPACE}
-
 helm template heartbeat --namespace ${DEPLOY_NAMESPACE} | oc apply -f -
 ```
