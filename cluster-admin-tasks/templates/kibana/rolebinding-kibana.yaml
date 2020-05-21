@@ -3,11 +3,11 @@ kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: kibana
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.deploy.namespace }}
 subjects:
   - kind: ServiceAccount
     name: kibana
-    namespace: {{ .Release.Namespace }}
+    namespace: {{ .Values.deploy.namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole

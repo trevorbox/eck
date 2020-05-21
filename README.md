@@ -12,7 +12,7 @@ export DEPLOY_NAMESPACE=sre-monitoring
 This only needs to be run once by a cluster admin. All other namespaces can be controlled by a single operator namespace. See the [Deploy operator guide](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-openshift-deploy-the-operator.html)
 
 ```sh
-helm template cluster-admin-tasks --namespace ${OPERATOR_NAMESPACE} | oc apply -f -
+helm template cluster-admin-tasks --namespace ${OPERATOR_NAMESPACE} --set deploy.namespace=${DEPLOY_NAMESPACE} | oc apply -f -
 ```
 
 Whenever a new namespace wants to use the operator, run the following to tell the operator to watch the namespace.
@@ -32,7 +32,7 @@ This will build a new heartbeat image that can be run as a random user and push 
 helm template heartbeat-build --namespace ${DEPLOY_NAMESPACE} | oc apply -f -
 ```
 
-These should be run by an admin on the ${DEPLOY_NAMESPACE} project.
+The following needs to be run by a developer on the ${DEPLOY_NAMESPACE} project.
 
 ```sh
 helm template sre-admin-tasks --namespace ${DEPLOY_NAMESPACE} | oc apply -f -
