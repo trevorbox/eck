@@ -1,0 +1,20 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: heartbeat
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: heartbeat-build
+spec:
+  lookupPolicy:
+    local: false
+  tags:
+  - annotations:
+      openshift.io/imported-from: docker.elastic.co/beats/heartbeat:7.2.0
+    from:
+      kind: DockerImage
+      name: docker.elastic.co/beats/heartbeat:7.2.0
+    importPolicy: {}
+    name: 7.2.0
+    referencePolicy:
+      type: Source
