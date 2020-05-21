@@ -1,12 +1,14 @@
-kind: ClusterRoleBinding
+---
+kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: kibana
+  name: heartbeat
+  namespace: {{ .Release.Namespace }}
 subjects:
   - kind: ServiceAccount
-    name: kibana
+    name: heartbeat
     namespace: {{ .Release.Namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: oauth-proxy
+  name: heartbeat

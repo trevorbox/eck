@@ -1,45 +1,33 @@
 # Elasticsearch Cloud Kibana on Openshift
 
-## Determine namespaces
+## Define namespaces
 
 ```sh
 export OPERATOR_NAMESPACE=elastic-system
-
-export DEPLOY_NAMESPACE=elastic
+export DEPLOY_NAMESPACE=sre-monitoring
 ```
 
-## Install operators
+## Cluster Admin Tasks
 
-See the [Deploy operator guide](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-openshift-deploy-the-operator.html)
+This only needs to be run once by a cluster admin. All other namespaces can be controlled by a single operator namespace. See the [Deploy operator guide](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-openshift-deploy-the-operator.html)
 
 ```sh
-helm template elastic-operator --namespace ${OPERATOR_NAMESPACE} | oc apply -f -
+helm template cluster-admin-tasks --namespace ${OPERATOR_NAMESPACE} | oc apply -f -
 ```
 
-## Deploy Elasticsearch - auth disabled
+Whenever a new namespace wants to use the operator, run the following to tell the operator to watch the namespace.
 
 ```sh
-oc new-project ${DEPLOY_NAMESPACE}
-
-#Required for Operator to watch our ${DEPLOY_NAMESPACE}
 oc patch statefulset/elastic-operator \
   -n ${OPERATOR_NAMESPACE} \
   --type='json' \
   --patch '[{"op":"add","path":"/spec/template/spec/containers/0/env/-","value": {"name": "NAMESPACE", "value": "'"${DEPLOY_NAMESPACE}"'"}}]'
-
-helm template elasticsearch --namespace ${DEPLOY_NAMESPACE} | oc apply -f -
 ```
 
-## Deploy Kibana with Openshift oauth proxy
+## SRE admin tasks
+
+These should be run by an admin on the ${DEPLOY_NAMESPACE} project.
 
 ```sh
-helm template kibana --namespace ${DEPLOY_NAMESPACE} | oc apply -f -
-```
-
-## Deploy Heartbeat
-
-```sh
-oc adm policy add-scc-to-user privileged -z heartbeat -n ${DEPLOY_NAMESPACE}
-
-helm template heartbeat --namespace ${DEPLOY_NAMESPACE} | oc apply -f -
+helm template sre-admin-tasks --namespace ${DEPLOY_NAMESPACE} | oc apply -f -
 ```

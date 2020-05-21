@@ -1,7 +1,7 @@
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: kibana-sample
+  name: kibana
   namespace: {{ .Release.Namespace }}
 spec:
   tls:
@@ -9,7 +9,7 @@ spec:
     termination: reencrypt
   to:
     kind: Service
-    name: kibana-sample-kb-http
+    name: kibana-kb-http
     weight: 100
   port:
     targetPort: proxy
