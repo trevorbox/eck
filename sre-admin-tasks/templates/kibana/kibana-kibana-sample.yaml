@@ -34,6 +34,8 @@ spec:
   podTemplate:
     metadata:
       creationTimestamp: null
+      labels:
+        maistra.io/expose-route: 'true'
     spec:
       automountServiceAccountToken: true
       serviceAccountName: kibana
@@ -55,7 +57,17 @@ spec:
         resources:
           requests:
             cpu: "1"
-            memory: 2Gi
+            memory: 4Gi
+        readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 5601
+              scheme: HTTP
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
       - name: proxy
         args:
         - '-provider=openshift'
