@@ -1,7 +1,7 @@
 apiVersion: kibana.k8s.elastic.co/v1
 kind: Kibana
 metadata:
-  name: kibana
+  name: kibana-sample
   namespace: {{ .Release.Namespace }}
 spec:
   serviceAccountName: kibana
@@ -9,7 +9,7 @@ spec:
     xpack.security.enabled: false
   count: 1
   elasticsearchRef:
-    name: elasticsearch
+    name: elasticsearch-sample
   http:
     service:
       metadata:
@@ -24,7 +24,7 @@ spec:
             targetPort: 9091
         selector:
           common.k8s.elastic.co/type: kibana
-          kibana.k8s.elastic.co/name: kibana
+          kibana.k8s.elastic.co/name: kibana-sample
         clusterIP: None
         type: ClusterIP
         sessionAffinity: None

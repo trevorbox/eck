@@ -12,6 +12,8 @@ export DEPLOY_NAMESPACE=sre-monitoring
 This only needs to be run once by a cluster admin. All other namespaces can be controlled by a single operator namespace. See the [Deploy operator guide](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-openshift-deploy-the-operator.html)
 
 ```sh
+oc adm policy add-cluster-role-to-group system:auth-delegator system:serviceaccounts:${DEPLOY_NAMESPACE} --rolebinding-name=oauth-proxy-serviceaccounts
+
 helm template cluster-admin-tasks --namespace ${OPERATOR_NAMESPACE} --set deploy.namespace=${DEPLOY_NAMESPACE} | oc apply -f -
 ```
 
