@@ -16,23 +16,22 @@ spec:
       selfSignedCertificate:
         disabled: true
   nodeSets:
-  - config:
-      node.data: true
-      node.ingest: true
-      node.master: true
-      node.store.allow_mmap: false
-      xpack.security.authc:
-        anonymous:
-          authz_exception: false
-          roles: superuser
-          username: anonymous
-    count: 1
-    name: default
-    podTemplate:
-      metadata:
-        creationTimestamp: null
-      spec:
-        containers: null
+    - name: default
+      count: 2
+      config:
+        node.store.allow_mmap: false
+        xpack.security.authc:
+          anonymous:
+            authz_exception: false
+            roles: superuser
+            username: anonymous
+        xpack.watcher.enabled: true
+  podDisruptionBudget:
+    spec:
+      minAvailable: 1
+      selector:
+        matchLabels:
+          elasticsearch.k8s.elastic.co/cluster-name: elasticsearch-sample
   transport:
     service:
       metadata:
