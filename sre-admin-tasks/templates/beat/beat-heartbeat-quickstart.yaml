@@ -17,8 +17,6 @@ spec:
     podTemplate:
       spec:
         dnsPolicy: ClusterFirstWithHostNet
-        #securityContext:
-        #  runAsUser: 0
         volumes:
           - name: beat-data
             persistentVolumeClaim:
@@ -35,7 +33,6 @@ spec:
               optional: false
         containers:
           - name: heartbeat
-            #image: image-registry.openshift-image-registry.svc:5000/{{ .Release.Namespace }}/heartbeat-build:latest
             args:
               - '-e'
               - '-c'

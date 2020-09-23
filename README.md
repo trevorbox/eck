@@ -31,11 +31,11 @@ oc patch statefulset/elastic-operator \
 This will build a new heartbeat image that can be run as a random user and push it to the internal openshift registry.
 
 ```sh
-helm template heartbeat-build --namespace ${DEPLOY_NAMESPACE} | oc apply -f -
+helm upgrade -i heartbeat-build -n ${DEPLOY_NAMESPACE} heartbeat-build
 ```
 
 The following needs to be run by a developer on the ${DEPLOY_NAMESPACE} project.
 
 ```sh
-helm template sre-admin-tasks --namespace ${DEPLOY_NAMESPACE} | oc apply -f -
+helm upgrade -i heartbeat -n ${DEPLOY_NAMESPACE} sre-admin-tasks
 ```
