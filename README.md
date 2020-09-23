@@ -1,45 +1,46 @@
 # Elasticsearch Cloud Kibana on Openshift
 
-## Determine namespaces
+Docs: [Elastic Cloud on Kubernetes](https://www.elastic.co/guide/en/cloud-on-k8s/1.2/k8s-overview.html)
+
+Github: [elastic/cloud-on-k8s](https://github.com/elastic/cloud-on-k8s)
+
+## Define namespaces
 
 ```sh
-export OPERATOR_NAMESPACE=elastic-system
-
-export DEPLOY_NAMESPACE=elastic
-```
-
-## Install operators
-
-See the [Deploy operator guide](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-openshift-deploy-the-operator.html)
-
-```sh
-helm template elastic-operator --namespace ${OPERATOR_NAMESPACE} | oc apply -f -
-```
-
-## Deploy Elasticsearch - auth disabled
-
-```sh
+export DEPLOY_NAMESPACE=sre-monitoring
 oc new-project ${DEPLOY_NAMESPACE}
-
-#Required for Operator to watch our ${DEPLOY_NAMESPACE}
-oc patch statefulset/elastic-operator \
-  -n ${OPERATOR_NAMESPACE} \
-  --type='json' \
-  --patch '[{"op":"add","path":"/spec/template/spec/containers/0/env/-","value": {"name": "NAMESPACE", "value": "'"${DEPLOY_NAMESPACE}"'"}}]'
-
-helm template elasticsearch --namespace ${DEPLOY_NAMESPACE} | oc apply -f -
 ```
 
-## Deploy Kibana with Openshift oauth proxy
+## Cluster Admin Tasks
 
 ```sh
-helm template kibana --namespace ${DEPLOY_NAMESPACE} | oc apply -f -
+oc adm policy add-cluster-role-to-group system:auth-delegator system:serviceaccounts:${DEPLOY_NAMESPACE} --rolebinding-name=oauth-proxy-serviceaccounts
+
+helm upgrade -i cluster-admin-tasks -n ${DEPLOY_NAMESPACE} cluster-admin-tasks
 ```
 
-## Deploy Heartbeat
+### Elastic Cloud ECK Operators
 
 ```sh
-oc adm policy add-scc-to-user privileged -z heartbeat -n ${DEPLOY_NAMESPACE}
+helm upgrade -i elastic-cloud-eck-operators -n ${DEPLOY_NAMESPACE} elastic-cloud-eck-operators
+```
 
-helm template heartbeat --namespace ${DEPLOY_NAMESPACE} | oc apply -f -
+> Note: you need to manually approve the InstallPlan - run the command below and follow the URL
+
+```sh
+echo "https://$(oc get route console -o jsonpath={.spec.host} -n openshift-console)/k8s/ns/${DEPLOY_NAMESPACE}/operators.coreos.com~v1alpha1~InstallPlan"
+```
+
+## SRE admin tasks
+
+This will build a new heartbeat image that can be run as a random user and push it to the internal openshift registry.
+
+```sh
+helm upgrade -i heartbeat-build -n ${DEPLOY_NAMESPACE} heartbeat-build
+```
+
+The following needs to be run by a developer on the ${DEPLOY_NAMESPACE} project.
+
+```sh
+helm upgrade -i heartbeat -n ${DEPLOY_NAMESPACE} sre-admin-tasks
 ```

@@ -1,0 +1,38 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: heartbeat-build
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: heartbeat-build
+spec:
+  failedBuildsHistoryLimit: 5
+  output:
+    to:
+      kind: ImageStreamTag
+      name: heartbeat-build:latest
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    contextDir: heartbeat-build/docker
+    git:
+      ref: master
+      uri: https://github.com/trevorbox/eck
+    type: Git
+  strategy:
+    dockerStrategy:
+      from:
+        kind: ImageStreamTag
+        name: heartbeat:7.6.2
+    type: Docker
+  successfulBuildsHistoryLimit: 5
+  triggers:
+  - github:
+      secret: yuBs8TnphkrQBFbEictF
+    type: GitHub
+  - generic:
+      secret: SHU-rO9hdzIIiudSKEcK
+    type: Generic
+  - type: ConfigChange
+  - type: ImageChange

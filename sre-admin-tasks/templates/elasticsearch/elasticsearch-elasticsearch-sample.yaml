@@ -1,0 +1,52 @@
+---
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: elasticsearch-sample
+  namespace: {{ .Release.Namespace }}
+spec:
+  auth: {}
+  http:
+    service:
+      metadata:
+        creationTimestamp: null
+      spec: {}
+    tls:
+      certificate: {}
+      selfSignedCertificate:
+        disabled: true
+  nodeSets:
+    - name: default
+      count: 2
+      config:
+        node.store.allow_mmap: false
+        xpack.security.authc:
+          anonymous:
+            authz_exception: false
+            roles: superuser
+            username: anonymous
+        xpack.watcher.enabled: true
+      volumeClaimTemplates:
+        - metadata:
+            name: elasticsearch-data
+          spec:
+            accessModes:
+            - ReadWriteOnce
+            resources:
+              requests:
+                storage: 10Gi
+            storageClassName: gp2
+  podDisruptionBudget:
+    spec:
+      minAvailable: 1
+      selector:
+        matchLabels:
+          elasticsearch.k8s.elastic.co/cluster-name: elasticsearch-sample
+  transport:
+    service:
+      metadata:
+        creationTimestamp: null
+      spec: {}
+  updateStrategy:
+    changeBudget: {}
+  version: 7.6.2
