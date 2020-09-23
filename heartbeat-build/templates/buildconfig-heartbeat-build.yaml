@@ -17,7 +17,7 @@ spec:
   source:
     contextDir: heartbeat-build/docker
     git:
-      ref: sre
+      ref: beats-config
       uri: https://github.com/trevorbox/eck
     type: Git
   strategy:
