@@ -1,0 +1,60 @@
+---
+apiVersion: beat.k8s.elastic.co/v1beta1
+kind: Beat
+metadata:
+  name: heartbeat-quickstart
+spec:
+  type: heartbeat
+  version: 7.6.2
+  elasticsearchRef:
+    name: elasticsearch-sample
+  #kibanaRef:
+  #  name: kibana-sample-kb
+  configRef:
+    secretName: heartbeat-config
+  image: image-registry.openshift-image-registry.svc:5000/{{ .Release.Namespace }}/heartbeat-build:latest
+  deployment:
+    podTemplate:
+      spec:
+        dnsPolicy: ClusterFirstWithHostNet
+        #securityContext:
+        #  runAsUser: 0
+        volumes:
+          - name: beat-data
+            persistentVolumeClaim:
+              claimName: beat-data
+          - name: config
+            secret:
+              secretName: heartbeat-config
+              defaultMode: 384
+              optional: false
+          - name: elasticsearch-certs
+            secret:
+              secretName: heartbeat-quickstart-beat-es-ca
+              defaultMode: 420
+              optional: false
+        containers:
+          - name: heartbeat
+            #image: image-registry.openshift-image-registry.svc:5000/{{ .Release.Namespace }}/heartbeat-build:latest
+            args:
+              - '-e'
+              - '-c'
+              - /etc/beat.yml
+            resources:
+              limits:
+                cpu: 100m
+                memory: 200Mi
+              requests:
+                cpu: 100m
+                memory: 200Mi        
+            volumeMounts:
+              - name: beat-data
+                mountPath: /usr/share/heartbeat/data
+              - name: config
+                readOnly: true
+                mountPath: /etc/beat.yml
+                subPath: beat.yml
+              - name: elasticsearch-certs
+                readOnly: true
+                mountPath: /mnt/elastic-internal/elasticsearch-certs
+...

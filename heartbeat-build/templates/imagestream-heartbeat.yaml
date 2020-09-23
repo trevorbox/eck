@@ -10,11 +10,11 @@ spec:
     local: false
   tags:
   - annotations:
-      openshift.io/imported-from: docker.elastic.co/beats/heartbeat:7.2.0
+      openshift.io/imported-from: docker.elastic.co/beats/heartbeat:7.6.2
     from:
       kind: DockerImage
-      name: docker.elastic.co/beats/heartbeat:7.2.0
+      name: docker.elastic.co/beats/heartbeat:7.6.2
     importPolicy: {}
-    name: 7.2.0
+    name: 7.6.2
     referencePolicy:
       type: Source

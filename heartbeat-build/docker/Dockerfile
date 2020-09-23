@@ -1,4 +1,4 @@
-FROM docker.elastic.co/beats/heartbeat:7.2.0
+FROM docker.elastic.co/beats/heartbeat:7.6.2
 
 USER 0
 

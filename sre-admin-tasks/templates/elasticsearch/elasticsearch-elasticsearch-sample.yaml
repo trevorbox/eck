@@ -26,6 +26,16 @@ spec:
             roles: superuser
             username: anonymous
         xpack.watcher.enabled: true
+      volumeClaimTemplates:
+        - metadata:
+            name: elasticsearch-data
+          spec:
+            accessModes:
+            - ReadWriteOnce
+            resources:
+              requests:
+                storage: 10Gi
+            storageClassName: gp2
   podDisruptionBudget:
     spec:
       minAvailable: 1
