@@ -1,29 +1,34 @@
 # Elasticsearch Cloud Kibana on Openshift
 
+Docs: [Elastic Cloud on Kubernetes](https://www.elastic.co/guide/en/cloud-on-k8s/1.2/k8s-overview.html)
+
+Github: [elastic/cloud-on-k8s](https://github.com/elastic/cloud-on-k8s)
+
 ## Define namespaces
 
 ```sh
-export OPERATOR_NAMESPACE=elastic-system
 export DEPLOY_NAMESPACE=sre-monitoring
+oc new-project ${DEPLOY_NAMESPACE}
 ```
 
 ## Cluster Admin Tasks
 
-This only needs to be run once by a cluster admin. All other namespaces can be controlled by a single operator namespace. See the [Deploy operator guide](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-openshift-deploy-the-operator.html)
-
 ```sh
 oc adm policy add-cluster-role-to-group system:auth-delegator system:serviceaccounts:${DEPLOY_NAMESPACE} --rolebinding-name=oauth-proxy-serviceaccounts
 
-helm template cluster-admin-tasks --namespace ${OPERATOR_NAMESPACE} --set deploy.namespace=${DEPLOY_NAMESPACE} | oc apply -f -
+helm upgrade -i cluster-admin-tasks -n ${DEPLOY_NAMESPACE} cluster-admin-tasks
 ```
 
-Whenever a new namespace wants to use the operator, run the following to tell the operator to watch the namespace.
+### Elastic Cloud ECK Operators
 
 ```sh
-oc patch statefulset/elastic-operator \
-  -n ${OPERATOR_NAMESPACE} \
-  --type='json' \
-  --patch '[{"op":"add","path":"/spec/template/spec/containers/0/env/-","value": {"name": "NAMESPACE", "value": "'"${DEPLOY_NAMESPACE}"'"}}]'
+helm upgrade -i elastic-cloud-eck-operators -n ${DEPLOY_NAMESPACE} elastic-cloud-eck-operators
+```
+
+> Note: you need to manually approve the InstallPlan - run the command below and follow the URL
+
+```sh
+echo "https://$(oc get route console -o jsonpath={.spec.host} -n openshift-console)/k8s/ns/${DEPLOY_NAMESPACE}/operators.coreos.com~v1alpha1~InstallPlan"
 ```
 
 ## SRE admin tasks
