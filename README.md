@@ -42,5 +42,5 @@ helm upgrade -i heartbeat-build -n ${DEPLOY_NAMESPACE} heartbeat-build
 The following needs to be run by a developer on the ${DEPLOY_NAMESPACE} project.
 
 ```sh
-helm upgrade -i heartbeat -n ${DEPLOY_NAMESPACE} sre-admin-tasks
+helm upgrade -i sre-admin-tasks -n ${DEPLOY_NAMESPACE} sre-admin-tasks
 ```

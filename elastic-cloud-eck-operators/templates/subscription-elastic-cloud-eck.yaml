@@ -6,8 +6,7 @@ metadata:
 spec:
   channel: stable
   installPlanApproval: Manual
-  name: elastic-cloud-eck
-  source: community-operators
+  name: elasticsearch-eck-operator-certified
+  source: certified-operators
   sourceNamespace: openshift-marketplace
-  startingCSV: elastic-cloud-eck.v1.2.1
 ...

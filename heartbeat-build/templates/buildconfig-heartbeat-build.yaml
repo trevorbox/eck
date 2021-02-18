@@ -24,7 +24,7 @@ spec:
     dockerStrategy:
       from:
         kind: ImageStreamTag
-        name: heartbeat:7.6.2
+        name: heartbeat-ubi8:7.11.0
     type: Docker
   successfulBuildsHistoryLimit: 5
   triggers:

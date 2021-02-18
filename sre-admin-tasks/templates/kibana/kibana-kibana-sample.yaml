@@ -104,4 +104,4 @@ spec:
           - name: configmap-trusted-ca-bundle
             mountPath: /etc/configmaps/trusted-ca-bundle
             readOnly: true
-  version: 7.6.2
+  version: 7.11.0
